@@ -4,7 +4,11 @@ import { Check, GameController } from 'phosphor-react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Checkbox from '@radix-ui/react-checkbox'
 import * as ToggleGroup from '@radix-ui/react-toggle-group'
-import axios from 'axios'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'https://ninazryatcdkcekisjor.supabase.co'
+const supabaseKey: any = import.meta.env.VITE_SUPABASE_KEY
+const client = createClient(supabaseUrl, supabaseKey)
 
 interface Game {
 	id: string
@@ -17,9 +21,14 @@ export function CreateAdModal() {
 	const [useVoiceChannel, setUseVoiceChannel] = useState(false)
 
 	useEffect(() => {
-		axios('http://localhost:3333/games').then((response) => {
-			setGames(response.data)
-		})
+		client
+			.from('Game')
+			.select("id, title, bannerUrl")
+			.then(({ data, error }) => {
+				if (!error) {
+					setGames(data)
+				}
+			})
 	}, [])
 
 	async function handleCreateAd(event: FormEvent) {
@@ -33,15 +42,17 @@ export function CreateAdModal() {
 		}
 
 		try {
-			axios.post(`http://localhost:3333/games/${data.game}/ads`, {
-				name: data.name,
-				yearsPlaying: Number(data.yearsPlaying),
-				discord: data.discord,
-				weekDays: weekDays.map(Number),
-				hourStart: data.hourStart,
-				hourEnd: data.hourEnd,
-				useVoiceChannel: useVoiceChannel,
-			})
+			client.from('Ad').insert([
+				{
+					name: data.name,
+					yearsPlaying: Number(data.yearsPlaying),
+					discord: data.discord,
+					weekDays: weekDays.map(Number),
+					hourStart: data.hourStart,
+					hourEnd: data.hourEnd,
+					useVoiceChannel: useVoiceChannel,
+				},
+			])
 
 			alert('Ad created with success!')
 		} catch (err) {

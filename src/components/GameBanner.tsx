@@ -1,7 +1,6 @@
 interface GameProps {
 	bannerUrl: string
 	title: string
-	adsCount: number
 }
 
 export function GameBanner(props: GameProps) {
@@ -12,10 +11,6 @@ export function GameBanner(props: GameProps) {
 				<strong className='font-bold text-white block '>
 					{props.title}
 				</strong>
-				<span className='text-zinc-300 text-sm block'>
-					{props.adsCount}
-					{props.adsCount > 1 ? ' ads' : ' ad'}
-				</span>
 			</div>
 		</a>
 	)

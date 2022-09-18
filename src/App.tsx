@@ -2,28 +2,30 @@ import { useEffect, useState } from 'react'
 import { GameBanner } from './components/GameBanner'
 import { CreateAdBanner } from './components/CreateAdBanner'
 import { CreateAdModal } from './components/CreateAdModal'
-
+import { createClient } from '@supabase/supabase-js'
 import * as Dialog from '@radix-ui/react-dialog'
 
 import './styles/main.css'
 import logoImg from './assets/logo.svg'
-import axios from 'axios'
+
+const supabaseUrl = 'https://ninazryatcdkcekisjor.supabase.co'
+const supabaseKey: any = import.meta.env.VITE_SUPABASE_KEY
+const client = createClient(supabaseUrl, supabaseKey)
 
 interface Game {
 	id: string
 	title: string
 	bannerUrl: string
-	_count: {
-		ads: number
-	}
 }
 
 function App() {
 	const [games, setGames] = useState<Game[]>([])
 
 	useEffect(() => {
-		axios('http://localhost:3333/games').then((response) => {
-			setGames(response.data)
+		client.from("Game").select("id, title, bannerUrl").then(({data, error}) => {
+			if(!error) {
+        setGames(data)
+      }
 		})
 	}, [])
 
@@ -46,7 +48,6 @@ function App() {
 							key={game.id}
 							bannerUrl={game.bannerUrl}
 							title={game.title}
-							adsCount={game._count.ads}
 						/>
 					)
 				})}
